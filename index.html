@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Разрешения устройства</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 40px 20px;
+      background: #111;
+      color: white;
+    }
+
+    button {
+      display: block;
+      width: 100%;
+      max-width: 350px;
+      margin: 15px auto;
+      padding: 18px;
+      border: 0;
+      border-radius: 15px;
+      font-size: 18px;
+      background: #333;
+      color: white;
+    }
+
+    video {
+      width: 100%;
+      max-width: 350px;
+      margin-top: 20px;
+      border-radius: 15px;
+    }
+
+    #status {
+      margin-top: 25px;
+      color: #aaa;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h1>📱 Проверка устройства</h1>
+
+  <p>Выберите, какие разрешения предоставить:</p>
+
+  <button onclick="getLocation()">📍 Разрешить геолокацию</button>
+
+  <button onclick="getMicrophone()">🎤 Разрешить микрофон</button>
+
+  <button onclick="getCamera()">📷 Разрешить камеру</button>
+
+  <video id="camera" autoplay playsinline></video>
+
+  <div id="status">Ожидание разрешений...</div>
+
+  <script>
+    const status = document.getElementById("status");
+
+    function getLocation() {
+      if (!navigator.geolocation) {
+        status.textContent = "Геолокация не поддерживается";
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        position => {
+          const lat = position.coords.latitude;
+          const lon = position.coords.longitude;
+
+          status.textContent =
+            `Геолокация разрешена: ${lat.toFixed(5)}, ${lon.toFixed(5)}`;
+        },
+        error => {
+          status.textContent = "Геолокация не разрешена";
+        }
+      );
+    }
+
+    async function getMicrophone() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          audio: true
+        });
+
+        status.textContent = "🎤 Микрофон разрешён";
+
+        stream.getTracks().forEach(track => track.stop());
+      } catch (error) {
+        status.textContent = "Микрофон не разрешён";
+      }
+    }
+
+    async function getCamera() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: true
+        });
+
+        document.getElementById("camera").srcObject = stream;
+        status.textContent = "📷 Камера разрешена";
+      } catch (error) {
+        status.textContent = "Камера не разрешена";
+      }
+    }
+  </script>
+
+</body>
+</html>
